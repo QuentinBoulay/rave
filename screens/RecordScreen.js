@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
-import { addRecording, removeRecording } from '../store/audioSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import * as FileSystem from 'expo-file-system';
+import { useDispatch } from 'react-redux';
+import { addRecording } from '../store/audioSlice';
+import CustomButton from '../components/CustomButton';
 
 const RecordScreen = () => {
   const [recording, setRecording] = useState(null);
   const [currentFileName, setCurrentFileName] = useState('');
-  const [currentPlayback, setCurrentPlayback] = useState(null);
+  const dispatch = useDispatch();
   const [isRecording, setIsRecording] = useState(false);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-
-  const recordings = useSelector((state) => state.audio.recordings);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!permissionResponse) {
@@ -21,77 +20,87 @@ const RecordScreen = () => {
   }, [permissionResponse]);
 
   async function startRecording() {
-    try {
-      if (permissionResponse.status !== 'granted') {
-        await requestPermission();
-      }
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-      );
-      setRecording(recording);
-      setIsRecording(true);
-    } catch (err) {
-      console.error('Failed to start recording', err);
-      Alert.alert('Error', 'Failed to start recording.');
+    if (permissionResponse.status !== 'granted') {
+      await requestPermission();
     }
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
+    const { recording } = await Audio.Recording.createAsync(
+      Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
+    );
+    setRecording(recording);
+    setIsRecording(true);
   }
-
-  useEffect(() => {
-    return currentPlayback
-      ? () => {
-          console.log('Unloading Sound...');
-          currentPlayback.unloadAsync();
-        }
-      : undefined;
-  }, [currentPlayback]);
 
   async function stopRecording() {
-    try {
-      await recording.stopAndUnloadAsync();
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
-      const uri = recording.getURI();
-      if (!uri) throw new Error("URI is undefined");
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+    if (!uri) throw new Error("URI is undefined");
+    setIsRecording(false);
+  }
 
-      const newRecording = {
-        uri,
-        name: currentFileName || `Recording ${recordings.length + 1}`,
-      };
-      console.log('New Recording:', newRecording);
-      console.log(recordings)
-      dispatch(addRecording(newRecording));
-      setRecording(null);
+  async function saveRecording() {
+    if (!currentFileName.trim()) {
+      Alert.alert('Erreur', 'Veuillez fournir un nom pour l\'enregistrement.');
+      return;
+    }
+    const uri = recording.getURI();
+    const fileInfo = await FileSystem.getInfoAsync(uri);
+    if (fileInfo.exists) {
+      const newPath = `${FileSystem.documentDirectory}${currentFileName}.m4a`;
+      await FileSystem.moveAsync({
+        from: uri,
+        to: newPath,
+      });
+
+      dispatch(addRecording({ uri: newPath, name: currentFileName + ".m4a" }));
       setCurrentFileName('');
-      setIsRecording(false);
-    } catch (error) {
-      console.error('Failed to stop recording', error);
+      setRecording(null);
+      Alert.alert('Succès', 'Enregistrement sauvegardé avec succès.');
     }
   }
 
-  const handleRecordButtonPress = async () => {
-    if (isRecording) {
-      await stopRecording();
-    } else {
-      await startRecording();
-    }
-  };
+  async function deleteRecording() {
+    setRecording(null);
+    setCurrentFileName('');
+    setIsRecording(false);
+  }
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Button title={isRecording ? 'Stop Recording' : 'Start Recording'} onPress={handleRecordButtonPress} />
+    <View style={styles.container}>
+      {isRecording ? (
+        <CustomButton title="Arrêter l'enregistrement" onPress={stopRecording} iconName="stop" />
+      ) : (
+        <CustomButton title="Démarrer l'enregistrement" onPress={startRecording} iconName="microphone" />
+      )}
       <TextInput
         value={currentFileName}
         onChangeText={setCurrentFileName}
-        placeholder="Enter file name"
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginVertical: 20 }}
+        placeholder="Entrez le nom du fichier"
+        style={styles.input}
       />
+      <CustomButton title="Sauvegarder l'enregistrement" onPress={saveRecording} iconName="save" disabled={!recording} />
+      {recording && <CustomButton title="Supprimer l'enregistrement" onPress={deleteRecording} iconName="trash" />}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f0f0f5',
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginVertical: 20,
+    paddingHorizontal: 10,
+  },
+});
 
 export default RecordScreen;

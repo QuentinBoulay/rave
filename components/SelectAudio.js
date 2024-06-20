@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
-import * as DocumentPicker from 'expo-document-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeRecording, setSelectedAudio } from '../store/audioSlice';
+import * as DocumentPicker from 'expo-document-picker';
+import CustomButton from '../components/CustomButton';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const SelectAudio = () => {
   const dispatch = useDispatch();
@@ -12,12 +14,24 @@ const SelectAudio = () => {
   const selectedAudio = useSelector((state) => state.audio.selectedAudio);
   const [currentPlayback, setCurrentPlayback] = useState(null);
 
+  useEffect(() => {
+    console.log("selectedAudio", selectedAudio);
+  }, [selectedAudio]);
 
   const selectAudioFromPhone = async () => {
-    let result = await DocumentPicker.getDocumentAsync({ type: 'audio/*' });
-    if (result.type === 'success') {
-      dispatch(setSelectedAudio(result.uri));
-      playAudioFromUri(result.uri);
+    try {
+      const { assets } = await DocumentPicker.getDocumentAsync({
+        type: 'audio/*',
+        copyToCacheDirectory: true,
+      });
+
+      if (assets) {
+        console.log(`Fichier sélectionné : ${assets[0].name}`);
+        dispatch(setSelectedAudio(assets[0]));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sélection de l\'audio', error);
+      Alert.alert('Erreur', `Échec de la sélection de l'audio : ${error.message}`);
     }
   };
 
@@ -49,38 +63,74 @@ const SelectAudio = () => {
   };
 
   const handleSelectAudio = (item) => {
-    dispatch(setSelectedAudio(item.name));
+    dispatch(setSelectedAudio(item));
   };
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
+    <View style={styles.container}>
       <FlatList
         data={recordings}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.uri}
         renderItem={({ item }) => (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
-            <TouchableOpacity onPress={() => handleSelectAudio(item)}>
-              <Text style={{ padding: 10, backgroundColor: selectedAudio === `${FileSystem.documentDirectory}${item}` ? 'lightgray' : 'white' }}>
+          <View style={styles.listItem}>
+            <TouchableOpacity onPress={() => handleSelectAudio(item)} style={styles.textContainer}>
+              <Text style={[styles.listItemText, selectedAudio === item.uri ? styles.selected : null]}>
                 {item.name}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => playRecording(item.uri)}>
-              <Text style={{ color: 'blue', marginHorizontal: 10 }}>Play</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteRecording(item.uri)}>
-              <Text style={{ color: 'red', marginHorizontal: 10 }}>Delete</Text>
-            </TouchableOpacity>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity onPress={() => playRecording(item.uri)}>
+                <Icon name="play" size={24} color="blue" style={styles.icon} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteRecording(item.uri)}>
+                <Icon name="trash" size={24} color="red" style={styles.icon} />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
-      <Button title="Sélectionner audio du téléphone" onPress={selectAudioFromPhone} />
+      <CustomButton title="Sélectionner audio du téléphone" onPress={selectAudioFromPhone} iconName="folder-open" />
       {selectedAudio && (
-        <View style={{ flexDirection: 'row', marginVertical: 20 }}>
-          <Text>Selected: {selectedAudio.split('/').pop()}</Text>
+        <View style={styles.selectedContainer}>
+          <Text>Sélectionné: {selectedAudio.name}</Text>
         </View>
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f0f0f5',
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  listItemText: {
+    padding: 10,
+    backgroundColor: 'white',
+    flex: 1,
+  },
+  selected: {
+    backgroundColor: 'lightgray',
+  },
+  iconContainer: {
+    flexDirection: 'row',
+  },
+  icon: {
+    marginHorizontal: 10,
+  },
+  selectedContainer: {
+    flexDirection: 'row',
+    marginVertical: 20,
+  },
+});
 
 export default SelectAudio;

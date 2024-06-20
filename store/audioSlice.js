@@ -13,17 +13,17 @@ const audioSlice = createSlice({
       state.recordings = [...state.recordings, action.payload];
     },
     removeRecording: (state, action) => {
-      state.recordings = state.recordings.filter(recording => recording.uri!== action.payload);
+      state.recordings = state.recordings.filter(recording => recording.uri !== action.payload);
     },
     setSelectedAudio: (state, action) => {
       state.selectedAudio = action.payload;
     },
     addConvertedAudio: (state, action) => {
-      state.convertedAudios.push(action.payload);
+      state.convertedAudios = [...state.convertedAudios, action.payload];
     },
     removeConvertedAudio: (state, action) => {
       state.convertedAudios = state.convertedAudios.filter(
-        (audio) => audio.uri !== action.payload
+        (audio) => audio !== action.payload
       );
     },
   },

@@ -4,14 +4,16 @@ const modelSlice = createSlice({
   name: 'model',
   initialState: {
     models: [],
-    selectedModel: null,
+    selectedModel: '',
   },
   reducers: {
     setModels: (state, action) => {
       state.models = action.payload;
     },
     setSelectedModel: (state, action) => {
+      console.log(action.payload)
       state.selectedModel = action.payload;
+      console.log(state.selectedModel)
     },
   },
 });
