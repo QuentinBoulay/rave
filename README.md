@@ -7,9 +7,9 @@ Ce projet est une application React Native pour l'enregistrement, la gestion et 
 
 1. Démarrez l'application Expo :
 
-   \`\`\`bash
+   ```bash
    yarn start
-   \`\`\`
+   ```
 
 2. Suivez les instructions pour lancer l'application sur un appareil physique ou un simulateur/emulateur.
 
