@@ -13,12 +13,14 @@ const RecordScreen = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
 
+  // Demande de permission pour enregistrer de l'audio
   useEffect(() => {
     if (!permissionResponse) {
       requestPermission();
     }
   }, [permissionResponse]);
 
+  // Démarrer l'enregistrement
   async function startRecording() {
     if (permissionResponse.status !== 'granted') {
       await requestPermission();
@@ -34,6 +36,7 @@ const RecordScreen = () => {
     setIsRecording(true);
   }
 
+  // Arrêter l'enregistrement
   async function stopRecording() {
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
@@ -41,6 +44,7 @@ const RecordScreen = () => {
     setIsRecording(false);
   }
 
+  // Sauvegarder l'enregistrement
   async function saveRecording() {
     if (!currentFileName.trim()) {
       Alert.alert('Erreur', 'Veuillez fournir un nom pour l\'enregistrement.');
@@ -62,6 +66,7 @@ const RecordScreen = () => {
     }
   }
 
+  // Supprimer l'enregistrement
   async function deleteRecording() {
     setRecording(null);
     setCurrentFileName('');

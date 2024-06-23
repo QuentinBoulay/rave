@@ -10,24 +10,25 @@ import CustomButton from '../components/CustomButton';
 
 const ModelSelection = () => {
   const dispatch = useDispatch();
-  const models = useSelector((state) => state.model.models);
-  const selectedModel = useSelector((state) => state.model.selectedModel);
-  const selectedAudio = useSelector((state) => state.audio.selectedAudio);
-  const convertedAudios = useSelector((state) => state.audio.convertedAudios);
-  const [currentPlayback, setCurrentPlayback] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [tempConvertedAudio, setTempConvertedAudio] = useState(null); // État temporaire pour l'audio converti
-  const serverIP = '172.20.10.4';
-  const port = '8000';
+  const models = useSelector((state) => state.model.models); // Récupère les modèles depuis le store Redux
+  const selectedModel = useSelector((state) => state.model.selectedModel); // Récupère le modèle sélectionné depuis le store Redux
+  const selectedAudio = useSelector((state) => state.audio.selectedAudio); // Récupère l'audio sélectionné depuis le store Redux
+  const convertedAudios = useSelector((state) => state.audio.convertedAudios); // Récupère les audios convertis depuis le store Redux
+  const [currentPlayback, setCurrentPlayback] = useState(null); // État pour le lecteur audio actuel
+  const [isLoading, setIsLoading] = useState(false); // État pour l'indicateur de chargement
+  const [tempConvertedAudio, setTempConvertedAudio] = useState(null); // État pour l'audio converti temporaire
+  const serverIP = useSelector((state) => state.server.serverIP); // Récupère l'IP du serveur depuis le store Redux
+  const port = useSelector((state) => state.server.port); // Récupère le port du serveur depuis le store Redux
 
   useEffect(() => {
-    fetchModels();
+    fetchModels(); // Récupère les modèles à l'initialisation
   }, []);
 
   useEffect(() => {
     console.log("convertedAudios", convertedAudios);
   }, [convertedAudios]);
 
+  // Récupération des modèles disponibles sur le serveur
   const fetchModels = async () => {
     try {
       const response = await axios.get(`http://${serverIP}:${port}/getmodels`);
@@ -37,6 +38,7 @@ const ModelSelection = () => {
     }
   };
 
+  // Sélection d'un modèle sur le serveur
   const selectModel = async (model) => {
     try {
       await axios.get(`http://${serverIP}:${port}/selectModel/${model}`);
@@ -46,6 +48,7 @@ const ModelSelection = () => {
     }
   };
 
+  // Transfert de l'audio vers le serveur
   const transferAudio = async () => {
     if (!selectedAudio) {
       Alert.alert('Aucun audio sélectionné');
@@ -62,7 +65,7 @@ const ModelSelection = () => {
         type: "audio/wav",
       });
 
-      await fetch(`http://${serverIP}:${port}/upload`, {
+      const response = await fetch(`http://${serverIP}:${port}/upload`, {
         method: "POST",
         body: formData,
         headers: {
@@ -71,7 +74,9 @@ const ModelSelection = () => {
         },
       });
 
-      await downloadConvertedAudio();
+      console.log("Réponse du serveur : ", response);
+      
+      await downloadConvertedAudio(); // Télécharge l'audio converti après le transfert
     } catch (error) {
       Alert.alert('Erreur lors du transfert de l\'audio', error.message);
     } finally {
@@ -79,16 +84,19 @@ const ModelSelection = () => {
     }
   };
 
+  // Téléchargement de l'audio converti depuis le serveur
   const downloadConvertedAudio = async () => {
     const downloadUrl = `http://${serverIP}:${port}/download`;
     const directory = FileSystem.documentDirectory + "test";
     await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
 
     const { uri } = await FileSystem.downloadAsync(downloadUrl, `${directory}/hey.wav`);
+    console.log(`Fichier téléchargé à : ${uri}`);
     setTempConvertedAudio(uri);
     Alert.alert('Téléchargement terminé', `Fichier téléchargé à ${uri}`);
   };
 
+  // Lecture de l'audio
   const playAudio = async (uri) => {
     try {
       console.log(`Tentative de lecture du fichier : ${uri}`);
@@ -112,6 +120,7 @@ const ModelSelection = () => {
     }
   };
 
+  // Sauvegarde de l'audio converti
   const saveConvertedAudio = async () => {
     if (!tempConvertedAudio) {
       Alert.alert('Aucun audio converti disponible');

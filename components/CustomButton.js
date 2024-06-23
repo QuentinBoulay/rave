@@ -2,15 +2,16 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+// Composant bouton personnalisé
 const CustomButton = ({ onPress, title, iconName, disabled }) => {
   return (
     <TouchableOpacity
       style={[styles.button, disabled ? styles.buttonDisabled : null]}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled} // Désactive le bouton si nécessaire
     >
-      {iconName && <Icon name={iconName} size={20} color="#fff" style={styles.icon} />}
-      <Text style={styles.buttonText}>{title}</Text>
+      {iconName && <Icon name={iconName} size={20} color="#fff" style={styles.icon} />} // Affiche l'icône si elle est définie
+      <Text style={styles.buttonText}>{title}</Text> // Affiche le texte du bouton
     </TouchableOpacity>
   );
 };

@@ -8,13 +8,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ConvertedAudios = () => {
   const dispatch = useDispatch();
-  const convertedAudios = useSelector((state) => state.audio.convertedAudios);
-  const [currentPlayback, setCurrentPlayback] = useState(null);
+  const convertedAudios = useSelector((state) => state.audio.convertedAudios); // Récupère les audios convertis depuis le store Redux
+  const [currentPlayback, setCurrentPlayback] = useState(null); // État pour le lecteur audio actuel
 
   useEffect(() => {
-    console.log("convertedAudios", convertedAudios)
-  }, [convertedAudios])
+    console.log("convertedAudios", convertedAudios);
+  }, [convertedAudios]);
 
+  // Lecture de l'audio converti
   const playAudio = async (uri) => {
     try {
       console.log(`Tentative de lecture du fichier : ${uri}`);
@@ -38,10 +39,11 @@ const ConvertedAudios = () => {
     }
   };
 
+  // Suppression de l'audio converti
   const deleteAudio = async (uri) => {
     try {
-      await FileSystem.deleteAsync(uri);
-      dispatch(removeConvertedAudio(uri));
+      await FileSystem.deleteAsync(uri); // Supprime le fichier du système de fichiers
+      dispatch(removeConvertedAudio(uri)); // Supprime l'audio du store Redux
     } catch (error) {
       console.error('Erreur lors de la suppression de l\'audio converti', error);
       Alert.alert('Erreur', `Échec de la suppression de l'audio converti : ${error.message}`);
@@ -56,7 +58,7 @@ const ConvertedAudios = () => {
         keyExtractor={(item) => item}
         renderItem={({ item }) => (
           <View style={styles.listItem}>
-            <Text style={styles.listItemText}>{item.split('/').pop()}</Text>
+            <Text style={styles.listItemText}>{item.split('/').pop()}</Text> {/* Affiche le nom du fichier */}
             <TouchableOpacity onPress={() => playAudio(item)}>
               <Icon name="play" size={24} color="blue" style={styles.icon} />
             </TouchableOpacity>
