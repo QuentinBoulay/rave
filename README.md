@@ -15,9 +15,9 @@ Ce projet est une application React Native pour l'enregistrement, la gestion et 
 
 ## Structure du projet
 
-- \`components/\` : Contient les composants réutilisables.
-- \`screens/\` : Contient les différentes pages de l'application.
-- \`store/\` : Contient les slices Redux pour gérer l'état de l'application.
+- `components` : Contient les composants réutilisables.
+- `screens` : Contient les différentes pages de l'application.
+- `store` : Contient les slices Redux pour gérer l'état de l'application.
 
 ## Fonctionnalités
 
@@ -27,27 +27,27 @@ L'application permet d'enregistrer des audios via le composant \`RecordScreen\`.
 
 ### Sélection et lecture d'audios
 
-L'application permet de sélectionner des audios enregistrés ou présents sur l'appareil via le composant \`SelectAudio\`. Les utilisateurs peuvent lire, supprimer ou sélectionner un fichier audio.
+L'application permet de sélectionner des audios enregistrés ou présents sur l'appareil via le composant `SelectAudio`. Les utilisateurs peuvent lire, supprimer ou sélectionner un fichier audio.
 
 ### Conversion d'audios
 
-L'application permet d'envoyer des audios à un serveur pour conversion et de télécharger les audios convertis via le composant \`ModelSelection\`. Les utilisateurs peuvent choisir un modèle de conversion, transférer l'audio et télécharger l'audio converti.
+L'application permet d'envoyer des audios à un serveur pour conversion et de télécharger les audios convertis via le composant `ModelSelection`. Les utilisateurs peuvent choisir un modèle de conversion, transférer l'audio et télécharger l'audio converti.
 
 ### Gestion des audios convertis
 
-L'application permet de lire et de supprimer des audios convertis via le composant \`ConvertedAudios\`. Les utilisateurs peuvent visualiser la liste des audios convertis, les lire ou les supprimer.
+L'application permet de lire et de supprimer des audios convertis via le composant `ConvertedAudios`. Les utilisateurs peuvent visualiser la liste des audios convertis, les lire ou les supprimer.
 
 ## Réducteurs Redux
 
-### \`audioSlice\`
+### `audioSlice`
 
 Gère l'état des enregistrements audio, de l'audio sélectionné et des audios convertis. Permet d'ajouter, de supprimer et de sélectionner des audios, ainsi que de gérer les audios convertis.
 
-### \`modelSlice\`
+### `modelSlice`
 
 Gère l'état des modèles disponibles et du modèle sélectionné. Permet de définir la liste des modèles et de sélectionner un modèle spécifique.
 
-### \`serverSlice\`
+### `serverSlice`
 
 Gère l'état des informations du serveur, y compris l'adresse IP et le port. Permet de mettre à jour l'adresse IP du serveur et le port utilisés pour les connexions.
 
