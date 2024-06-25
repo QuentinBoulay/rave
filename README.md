@@ -55,6 +55,8 @@ Gère l'état des informations du serveur, y compris l'adresse IP et le port. Pe
 
 Pour lancer le build de l'application, cliquez [ici](https://expo.dev/preview/update?message=update%20converted%20audio&updateRuntimeVersion=1.0.0&createdAt=2024-06-23T16%3A15%3A33.791Z&slug=exp&projectId=20d35b73-f9e5-4d8a-802d-de04da22fb07&group=b36ced8a-70b4-4524-b8dc-cf296896a167).
 
+[Description de l'image](https://qr.expo.dev/eas-update?slug=exp&projectId=20d35b73-f9e5-4d8a-802d-de04da22fb07&groupId=b36ced8a-70b4-4524-b8dc-cf296896a167)
+
 
 
 
