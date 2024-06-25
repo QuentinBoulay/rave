@@ -55,8 +55,6 @@ Gère l'état des informations du serveur, y compris l'adresse IP et le port. Pe
 
 Pour lancer le build de l'application, cliquez [ici](https://github.com/QuentinBoulay/rave/blob/master/eas-update.svg).
 
-[Description de l'image](https://qr.expo.dev/eas-update?slug=exp&projectId=20d35b73-f9e5-4d8a-802d-de04da22fb07&groupId=b36ced8a-70b4-4524-b8dc-cf296896a167)
-
 
 
 
